@@ -1,13 +1,18 @@
 import "./App.css";
-import { useIsConnected } from "./hooks/useIsConnected";
 import { useFuel } from "./hooks/useFuel";
-import { GameAbi__factory } from "./contracts";
-
-const CONTRACT_ID = "0x7433684b5e731d07604c800777539eeb2c568aa103a13ab785c665d975556078"
+import { useIsConnected } from "./hooks/useIsConnected";
+import { GameAbi__factory } from "./types"
+import { Wallet } from "fuels";
 
 function App() {
-  const [fuel] = useFuel();
+  const [fuel, notDetected] = useFuel();
   const [isConnected] = useIsConnected();
+
+  const CONTRACT_ID = "0xe0767304c2b083731066c883df00b6253d35365fe298f0b43ae1ea5a34eaa794"
+
+  const wallet = Wallet.fromAddress("fuel136wd63w4j8ke5yghwupdsq2efg3zk5zw8svflk84um7e0n52f3rqqecj9l");
+  console.log("address", wallet.address.toB256())
+
 
   async function newPlayer() {
     const account = await fuel.currentAccount();
@@ -36,24 +41,24 @@ function App() {
 
   return (
     <div className="App">
-      <header>
+       <header>
         <h1>Sway Game</h1>
       </header>
 
-      {isConnected ? (
+      {fuel && (
         <div>
-          <button onClick={newPlayer}>Make New Player</button>
-          <button onClick={levelUp}>Level Up</button>
-        </div>
-      ) : (
-        <div>
-          {fuel ? (
-            <button onClick={() => fuel.connect()}>Connect Wallet</button>
+          {isConnected ? (
+            <div>
+              <button onClick={newPlayer}>New Player</button>
+              <button onClick={levelUp}>Level Up</button>
+            </div>
           ) : (
-            <button>You need to install the Fuel Wallet first.</button>
+            <button onClick={() => fuel.connect()}>Connect Wallet</button>
           )}
         </div>
       )}
+
+      {notDetected && <div>fuel NOT detected.</div>}
     </div>
   );
 }
